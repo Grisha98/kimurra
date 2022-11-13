@@ -8,6 +8,8 @@ public class Kimurra : MonoBehaviour
     public Rigidbody2D rb;
     public Animator animator;
 
+    public GameObject Spot;
+
     Vector2 movement;
 
     void Update()
@@ -16,9 +18,9 @@ public class Kimurra : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
 
-        //animator.SetFloat("Horizontal", movement.x);
-        //animator.SetFloat("Vertical", movement.y);
-        //animator.SetFloat("Speed", movement.sqrMagnitude);
+        animator.SetFloat("Horizontal", movement.x);
+        animator.SetFloat("Vertical", movement.y);
+        animator.SetFloat("Speed", movement.sqrMagnitude);
         //End - walk
     }
 
@@ -27,4 +29,13 @@ public class Kimurra : MonoBehaviour
         rb.MovePosition(rb.position + movement * walkSpeed * Time.fixedDeltaTime);
     }
 
+    public void GenerateSpot1()
+    { 
+        Instantiate(Spot, transform.position-new Vector3(0.3f,1f,0), Spot.transform.rotation);
+    }
+
+    public void GenerateSpot2()
+    {
+        Instantiate(Spot, transform.position - new Vector3(-0.3f, 1f, 0), Spot.transform.rotation);
+    }
 }
