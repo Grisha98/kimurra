@@ -26,7 +26,7 @@ public class Kimurra : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * walkSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + movement.normalized * walkSpeed * Time.fixedDeltaTime);
     }
 
     public void GenerateSpot1()
