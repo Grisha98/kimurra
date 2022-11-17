@@ -88,9 +88,10 @@ public class Kimurra : MonoBehaviour
         //Handle old shadows
         foreach(KeyValuePair<GameObject, GameObject> entry in shadowStack)
         {
+            float height = entry.Key.GetComponent<CustomLight>().height;
             //angle
             float x = transform.position.x - entry.Key.transform.position.x;
-            float y = transform.position.y - entry.Key.transform.position.y + 2.35f;
+            float y = transform.position.y - entry.Key.transform.position.y + height;
             float angle = Mathf.Rad2Deg*Mathf.Atan2(x, y);
             entry.Value.transform.eulerAngles = new Vector3(0, 0, 180-angle);
 
@@ -102,7 +103,7 @@ public class Kimurra : MonoBehaviour
 
             //opacity
             //max 0.35
-            float distance = Vector3.Distance(transform.position, entry.Key.transform.position - new Vector3(0f, 2.35f, 0f));
+            float distance = Vector3.Distance(transform.position, entry.Key.transform.position - new Vector3(0f, height, 0f));
             if(closestDistance > distance)
             {
                 closestDistance = distance;

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CustomLight : MonoBehaviour
 {
+    public float height;
+
     // Start is called before the first frame update
     void Start()
     {
