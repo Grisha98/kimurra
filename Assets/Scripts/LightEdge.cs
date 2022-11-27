@@ -9,17 +9,21 @@ public class LightEdge : MonoBehaviour
     public float LightStep;
     public GameObject LightEnd;
 
+    public LightEdge ChildLight;
+    public Animator anim;
+
     private bool stopped;
     // Start is called before the first frame update
     void Start()
     {
         transform.eulerAngles = new Vector3(0, 0, Angle);
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!stopped)
+        if (!stopped && LightRay.transform.localScale.y < 5)
         {
             LightRay.transform.localScale += new Vector3(0, LightStep, 0);
             if(LightRay.transform.localScale.y != 0)
@@ -36,5 +40,25 @@ public class LightEdge : MonoBehaviour
         {
             stopped = true;
         }
+        if (collision.gameObject.GetComponent<CaveKey>() != null)
+        {
+            stopped = true;
+            collision.gameObject.GetComponent<CaveKey>().Open();
+        }
+    }
+
+    public void Remove()
+    {
+        if(ChildLight != null)
+        {
+            ChildLight.Remove();
+        }
+        anim.Play("LightDestroy");
+
+    }
+
+    public void RemoveGameobject()
+    {
+        Destroy(gameObject);
     }
 }

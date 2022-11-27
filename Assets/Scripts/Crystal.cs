@@ -35,7 +35,8 @@ public class Crystal : MonoBehaviour
     Dictionary<float, CrystalState> sprites;
     public float Angle;
     public GameObject lightEdge;
-    public GameObject Light;
+    public GameObject ExitLight;
+    public LightEdge InputLight;
 
     //Light angle, Crystal angle
     Dictionary<Vector2, LightState> angles = new Dictionary<Vector2, LightState> {
@@ -52,6 +53,8 @@ public class Crystal : MonoBehaviour
         {new Vector2(120, 270),  new LightState(240, new Vector3(-0.013f, 0.682f, 0), true) },
     };
 
+    List<float> possibleAngles = new List<float> { 0, 60, 90, 120, 180, 240, 270, 300 };
+
     // Start is called before the first frame update
     void Start()
     {
@@ -65,8 +68,7 @@ public class Crystal : MonoBehaviour
         sprites.Add(270f, new CrystalState(Sprites[6], -0.22f));
         sprites.Add(300f, new CrystalState(Sprites[7], -0.19f));
 
-        gameObject.GetComponent<SpriteRenderer>().sprite = sprites[Angle].sprite;
-        gameObject.GetComponent<Collider2D>().offset = new Vector2(sprites[Angle].colliderX, gameObject.GetComponent<Collider2D>().offset.y);
+        SetSprite();
     }
 
     // Update is called once per frame
@@ -78,32 +80,67 @@ public class Crystal : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         LightEdge light = collision.gameObject.GetComponentInParent<LightEdge>();
-        if (Light == null && light != null)
+        ReflectLight(light);
+    }
+
+    public void Turn(bool clockwise = true)
+    {
+        int ai = possibleAngles.FindIndex(a => a == Angle);
+        ai += clockwise ? -1 : 1;
+
+        if(ai == -1)
         {
-            if(angles.ContainsKey(new Vector2(light.Angle, Angle)))
+            ai = possibleAngles.Count - 1;
+        } else if (ai == possibleAngles.Count){
+            ai = 0;
+        }
+        Angle = possibleAngles[ai];
+
+        SetSprite();
+        if(ExitLight != null)
+        {
+            ExitLight.GetComponent<LightEdge>().Remove();
+            ExitLight = null;
+        }
+        ReflectLight(InputLight);
+    }
+
+    private void SetSprite()
+    {
+        gameObject.GetComponent<SpriteRenderer>().sprite = sprites[Angle].sprite;
+        gameObject.GetComponent<Collider2D>().offset = new Vector2(sprites[Angle].colliderX, gameObject.GetComponent<Collider2D>().offset.y);
+    }
+
+    private void ReflectLight(LightEdge light)
+    {
+        if (ExitLight == null && light != null)
+        {
+            InputLight = light;
+            if (angles.ContainsKey(new Vector2(InputLight.Angle, Angle)))
             {
-                Light = Instantiate(lightEdge, gameObject.transform);
-                Light.transform.position = light.LightEnd.transform.position;
+                ExitLight = Instantiate(lightEdge, gameObject.transform);
+                InputLight.ChildLight = ExitLight.GetComponent<LightEdge>();
+                ExitLight.transform.position = InputLight.LightEnd.transform.position;
 
-                Light.GetComponent<LightEdge>().Angle = angles[new Vector2(light.Angle, Angle)].angle;
+                ExitLight.GetComponent<LightEdge>().Angle = angles[new Vector2(light.Angle, Angle)].angle;
 
-                if(angles[new Vector2(light.Angle, Angle)].under)
+                if (angles[new Vector2(light.Angle, Angle)].under)
                 {
                     light.LightRay.GetComponent<SpriteRenderer>().sortingOrder = 0;
                     light.LightEnd.GetComponent<SpriteRenderer>().sortingOrder = 0;
 
-                    Light.GetComponent<LightEdge>().LightRay.GetComponent<SpriteRenderer>().sortingOrder = 0;
-                    Light.GetComponent<LightEdge>().LightEnd.GetComponent<SpriteRenderer>().sortingOrder = 0;
-                    Light.GetComponent<SpriteRenderer>().sortingOrder = 0;
+                    ExitLight.GetComponent<LightEdge>().LightRay.GetComponent<SpriteRenderer>().sortingOrder = 0;
+                    ExitLight.GetComponent<LightEdge>().LightEnd.GetComponent<SpriteRenderer>().sortingOrder = 0;
+                    ExitLight.GetComponent<SpriteRenderer>().sortingOrder = 0;
                 }
                 else
                 {
                     light.LightRay.GetComponent<SpriteRenderer>().sortingOrder = 1;
                     light.LightEnd.GetComponent<SpriteRenderer>().sortingOrder = 2;
 
-                    Light.GetComponent<LightEdge>().LightRay.GetComponent<SpriteRenderer>().sortingOrder = 1;
-                    Light.GetComponent<LightEdge>().LightEnd.GetComponent<SpriteRenderer>().sortingOrder = 2;
-                    Light.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                    ExitLight.GetComponent<LightEdge>().LightRay.GetComponent<SpriteRenderer>().sortingOrder = 1;
+                    ExitLight.GetComponent<LightEdge>().LightEnd.GetComponent<SpriteRenderer>().sortingOrder = 2;
+                    ExitLight.GetComponent<SpriteRenderer>().sortingOrder = 1;
                 }
             }
         }

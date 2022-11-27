@@ -16,6 +16,8 @@ public class Kimurra : MonoBehaviour
     private Dictionary<GameObject, GameObject> shadowStack;
     private float closestDistance = 0f;
 
+    private Crystal crystal;
+
     Vector2 movement;
 
     void Start()
@@ -36,6 +38,12 @@ public class Kimurra : MonoBehaviour
         //End - walk
 
         HandleShadows();
+
+        if(crystal != null)
+        {
+            HandleCrystal();
+        }
+
     }
 
     private void FixedUpdate()
@@ -55,19 +63,33 @@ public class Kimurra : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        //For Env Light
         if (collision.gameObject.GetComponent<Light2D>() != null)
         {
             lightStack.Add(collision.gameObject);
+        }
+
+        //For Crystals
+        if (collision.gameObject.transform.parent != null && collision.gameObject.transform.parent.GetComponent<Crystal>() != null)
+        {
+            crystal = collision.gameObject.transform.parent.GetComponent<Crystal>();
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
+        //For Env Light
         if (collision.gameObject.GetComponent<Light2D>() != null)
         {
             lightStack.Remove(collision.gameObject);
             Destroy(shadowStack[collision.gameObject]);
             shadowStack.Remove(collision.gameObject);
+        }
+
+        //For Crystals
+        if(collision.gameObject.transform.parent != null && collision.gameObject.transform.parent.GetComponent<Crystal>() != null)
+        {
+            crystal = null;
         }
     }
 
@@ -145,6 +167,17 @@ public class Kimurra : MonoBehaviour
                 MainShadow.GetComponent<SpriteRenderer>().color.b,
                 0.313f
             );
+        }
+    }
+
+    private void HandleCrystal()
+    {
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            crystal.Turn(true);
+        } else if (Input.GetKeyDown(KeyCode.Q))
+        {
+            crystal.Turn(false);
         }
     }
 }
