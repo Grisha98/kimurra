@@ -148,4 +148,3 @@ public class Kimurra : MonoBehaviour
         }
     }
 }
-//yete 0-n 0.35-a, 1.788 0.01
